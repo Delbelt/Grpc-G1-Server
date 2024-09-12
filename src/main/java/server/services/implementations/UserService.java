@@ -5,13 +5,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import lombok.extern.slf4j.Slf4j;
 import server.entities.User;
 import server.repositories.IUserRepository;
 import server.services.IUserService;
 
 // INITIAL COMMIT: PERSISTENCIA DE PRUEBA - SE BORRARA EN PROXIMAS REVISIONES.
 
+@Slf4j
 @Service
 public class UserService implements IUserService {
 
@@ -22,7 +23,11 @@ public class UserService implements IUserService {
 	@Transactional(readOnly = true)
 	public User findById(int id) {
 		
-		return repository.findById(id).orElse(null);
+		var response = repository.findById(id).orElse(null);
+		
+		log.info("[UserService][findById]: " + response);
+		
+		return response;
 	}
 
 	@Override

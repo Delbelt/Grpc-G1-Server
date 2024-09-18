@@ -25,7 +25,7 @@ public class StockService implements IStockService{
 	@Transactional(readOnly = true)
     public List<Stock> getStockByStore(String codeStore) {
 		
-        var response = repository.findByStore_CodeStore(codeStore);
+        var response = repository.findByStore_Code(codeStore);
         
         log.info("[StockService][getStockByStore]: Products found for store {}: {}", codeStore, response);
         
@@ -47,16 +47,16 @@ public class StockService implements IStockService{
 
 	@Override
 	@Transactional
-	public boolean remove(int idStore) {
+	public boolean remove(String code) {
 
 	    boolean isDeleted = false;
 
 	    try {
-	        repository.deleteById(idStore);
+	    	repository.deleteById(code);
 	        isDeleted = true;
-	        log.info("[StockService][remove]: Successfully deleted stock with ID " + idStore);
+	        log.info("[StockService][remove]: Successfully deleted stock with ID " + code);
 	    } catch (Exception e) {
-	        log.error("[StockService][remove]: Error occurred while trying to delete stock with ID " + idStore, e);
+	        log.error("[StockService][remove]: Error occurred while trying to delete stock with ID " + code, e);
 	    }
 
 	    return isDeleted;

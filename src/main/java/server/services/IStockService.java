@@ -13,7 +13,7 @@ public interface IStockService {
 
 	public boolean insertOrUpdate(Stock stock); // Agrega o modifica un stock
 
-	public boolean remove(int IdStore);
+	public boolean remove(String code);
 
 
 	

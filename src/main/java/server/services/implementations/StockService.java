@@ -20,6 +20,16 @@ public class StockService implements IStockService{
 	@Autowired
 	private IStockRepository repository;
 	
+	@Override
+	@Transactional(readOnly = true)
+    public Stock findByCode(String code) {
+		var response = repository.findByCode(code);
+		
+		log.info("[StockService][findByCode]: " + response);
+
+		return response;
+    }
+	
 	// Obtiene lista de stocks por codigo de tienda (codeStore)
 	@Override
 	@Transactional(readOnly = true)

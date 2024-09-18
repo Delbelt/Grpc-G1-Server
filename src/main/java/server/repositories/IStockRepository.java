@@ -9,7 +9,9 @@ import server.entities.Stock;
 
 public interface IStockRepository extends JpaRepository<Stock, String> {
 	
-	// Encuentra todos los stock en una tienda específica
+	// Encuentra por id de stock
+	public Stock findByCode(String code);
+	// Encuentra todos los stock en una tienda especifica
     List<Stock> findByStore_Code(String codeStore);
 	
 }

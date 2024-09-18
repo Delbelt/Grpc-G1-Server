@@ -15,9 +15,10 @@ import lombok.Data;
 @Entity
 @Table(name="stock")
 public class Stock {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int IdStore;
+	
+	@ManyToOne(cascade=CascadeType.PERSIST)
+	@JoinColumn(name="codeStore")
+	private Store Store;
 	
 	@ManyToOne(cascade=CascadeType.PERSIST)
 	@JoinColumn(name="codeProduct")

@@ -17,5 +17,5 @@ message GetStockByIdRequest {
 
 // Definición del servicio gRPC
 service StockGrpcService {
-    rpc GetStockById(GetStockByIdRequest) returns (StockGrpc);
+    rpc getStockById(GetStockByIdRequest) returns (StockGrpc);
 }

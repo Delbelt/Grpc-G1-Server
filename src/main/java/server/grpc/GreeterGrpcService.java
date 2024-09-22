@@ -7,12 +7,13 @@ import server.GreetProto.HelloReply;
 import server.GreetProto.HelloRequest;
 import server.GreeterGrpcServiceGrpc.GreeterGrpcServiceImplBase;
 import server.security.GrpcSecurityConfig.RoleAuth;
+import server.security.Roles;
 
 @GrpcService
 public class GreeterGrpcService extends GreeterGrpcServiceImplBase {
 
 	@Override
-	@RoleAuth({"ROLE_ADMIN", "ROLE_USER"})
+	@RoleAuth({Roles.ADMIN, Roles.USER})
 	public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
 
 		String message = request.getName();

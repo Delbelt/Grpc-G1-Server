@@ -9,6 +9,7 @@ import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import server.UserGrpcServiceGrpc.UserGrpcServiceImplBase;
 import server.UserProto.UserGrpc;
+import server.security.GrpcSecurityConfig.RoleAuth;
 import server.UserProto.RequestId;
 import server.services.IUserService;
 
@@ -19,6 +20,7 @@ public class UserGrpcService extends UserGrpcServiceImplBase {
 	private IUserService services;
 
 	@Override
+	@RoleAuth({"ROLE_USER"})
 	public void getUserGrpc(RequestId request, StreamObserver<UserGrpc> responseObserver) {
 
 		try {

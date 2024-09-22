@@ -1,0 +1,57 @@
+package server.grpc;
+
+import io.grpc.Status;
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.server.service.GrpcService;
+import server.AuthGrpcServiceGrpc.AuthGrpcServiceImplBase;
+import server.AuthProto.LoginRequest;
+import server.AuthProto.LoginResponse;
+import server.services.implementations.AuthService;
+
+@GrpcService
+public class AuthGrpcService extends AuthGrpcServiceImplBase {
+
+	private final AuthService authService;
+
+	public AuthGrpcService(AuthService authService) {
+		this.authService = authService;
+	}
+
+	@Override
+	public void loginGrpc(LoginRequest request, StreamObserver<LoginResponse> responseObserver) {
+
+		String username = request.getUsername();
+		String password = request.getPassword();
+		
+		try {
+			
+			String token = authService.login(username, password);
+
+			LoginResponse response = 
+					LoginResponse
+					.newBuilder()
+					.setToken(token)
+					.build();
+
+			responseObserver.onNext(response);
+			responseObserver.onCompleted();
+			
+		}
+		
+		catch (RuntimeException e) {
+			
+			responseObserver
+			.onError(Status.UNAUTHENTICATED.withDescription(e.getMessage())
+			.asRuntimeException());
+		}	
+		
+		catch (Exception e) {
+			
+			String messageError = "Internal server error: " + e.getMessage();
+			
+			responseObserver
+			.onError(Status.INTERNAL.withDescription(messageError)
+			.asRuntimeException());
+		}
+	}
+}

@@ -5,14 +5,14 @@ import net.devh.boot.grpc.server.service.GrpcService;
 import server.GreetProto;
 import server.GreetProto.HelloReply;
 import server.GreetProto.HelloRequest;
-import server.GreeterGrpc.GreeterImplBase;
-
-// Estandar: objectGrpcServices
+import server.GreeterGrpcServiceGrpc.GreeterGrpcServiceImplBase;
+import server.security.GrpcSecurityConfig.RoleAuth;
 
 @GrpcService
-public class GreeterService extends GreeterImplBase {
+public class GreeterGrpcService extends GreeterGrpcServiceImplBase {
 
 	@Override
+	@RoleAuth({"ROLE_ADMIN", "ROLE_USER"})
 	public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
 
 		String message = request.getName();

@@ -5,50 +5,44 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import lombok.extern.slf4j.Slf4j;
-import server.entities.User;
-import server.repositories.IUserRepository;
-import server.services.IUserService;
+import server.entities.UserRole;
+import server.repositories.IUserRoleRepository;
+import server.services.IUserRole;
 
 @Slf4j
 @Service
-public class UserService implements IUserService {
-
+public class UserRoleService implements IUserRole {
+	
 	@Autowired
-	private IUserRepository repository;
-
+	private IUserRoleRepository repository;
+	
 	@Override
 	@Transactional(readOnly = true)
-	public User findById(int id) {
+	public UserRole findById(int id) {
 		
 		var response = repository.findById(id).orElse(null);
 		
-		log.info("[UserService][findById]: " + response);
+		log.info("[UserRoleService][findById]: " + response);
 		
 		return response;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public User findByUserName(String userName) {
-		
-		return repository.findByUserName(userName);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<User> getAll() {
+	public List<UserRole> getAll() {
 
 		return repository.findAll();
 	}
 
 	@Override
 	@Transactional
-	public boolean insertOrUpdate(User user) {
+	public boolean insertOrUpdate(UserRole userRole) {
 
 		// TODO enhance handler response and exception
 
-		return repository.save(user) != null ? true : false;
+		return repository.save(userRole) != null ? true : false;
 	}
 
 	@Override
@@ -68,4 +62,5 @@ public class UserService implements IUserService {
 
 		return isDeleted;
 	}
+
 }

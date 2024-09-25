@@ -1,5 +1,10 @@
 package server.grpc;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.GrantedAuthority;
+
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -25,12 +30,22 @@ public class AuthGrpcService extends AuthGrpcServiceImplBase {
 		
 		try {
 			
-			String token = authService.login(username, password);
+			var userAuth = authService.login(username, password);
+			
+			String token = userAuth.getToken();
+			
+			List<String> roles = 
+					userAuth.getRoles()
+					.stream()
+					.map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
 
 			LoginResponse response = 
 					LoginResponse
 					.newBuilder()
 					.setToken(token)
+					.setUsername(userAuth.getUserName())
+					.addAllRoles(roles)
 					.build();
 
 			responseObserver.onNext(response);

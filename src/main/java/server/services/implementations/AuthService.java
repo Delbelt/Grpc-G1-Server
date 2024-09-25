@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import server.dtos.UserDTO;
 import server.security.JwtProvider;
 import server.services.IAuthService;
 
@@ -23,17 +24,19 @@ public class AuthService implements IAuthService {
 		this.userDetailsService = userDetailsService;
 	}
 
-	public String login(String username, String password) {
+	public UserDTO login(String username, String password) {
 
 		try {
 
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
-			UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+			UserDetails userDetails = userDetailsService.loadUserByUsername(username);			
 
-			String token = jwtProvider.createToken(userDetails.getUsername(), userDetails.getAuthorities());
+			String token = jwtProvider.createToken(userDetails.getUsername(), userDetails.getAuthorities());			
+			
+			UserDTO userAuth = new UserDTO(token, userDetails.getUsername(), userDetails.getAuthorities());
 
-			return token;
+			return userAuth;
 		}		
 
 		catch (AuthenticationException e) {

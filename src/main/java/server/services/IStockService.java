@@ -19,6 +19,6 @@ public interface IStockService {
 	
 	public List<Stock> findAvailableStocks(); // Obtiene lista de todos stocks disponibles
 
-
+	public List<Stock> findUnavailableStocks(); // Obtiene lista de todos stocks no disponibles
 	
 }

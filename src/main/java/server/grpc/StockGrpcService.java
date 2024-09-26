@@ -159,4 +159,41 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
         }
     }
 
+    @Override
+    @RoleAuth({Roles.ADMIN})
+    public void getUnavailableStocks(Empty request, StreamObserver<StockList> responseObserver) {
+        try {
+            // Obtener stocks no disponibles desde el servicio de stock
+            List<Stock> unavailableStocks = stockService.findUnavailableStocks();
+
+            // Construir la lista de stocks no disponibles para la respuesta gRPC
+            StockList.Builder stockListBuilder = StockList.newBuilder();
+            
+            for (Stock stock : unavailableStocks) {
+                ProductGrpc productGrpc = ProductGrpc.newBuilder()
+                    .setCode(stock.getProduct().getCode())
+                    .setName(stock.getProduct().getName())
+                    .setSize(stock.getProduct().getSize())
+                    .setColor(stock.getProduct().getColor())
+                    .build();
+
+                StockGrpc stockGrpc = StockGrpc.newBuilder()
+                    .setCode(stock.getCode())
+                    .setStoreCode(stock.getStore().getCode())
+                    .setProduct(productGrpc)
+                    .setQuantity(stock.getQuantity())
+                    .build();
+
+                stockListBuilder.addStocks(stockGrpc);
+            }
+
+            // Enviar la lista y completar la respuesta
+            responseObserver.onNext(stockListBuilder.build());
+            responseObserver.onCompleted();
+
+        } catch (Exception e) {
+            String errorMessage = "Internal server error: " + e.getMessage();
+            responseObserver.onError(Status.INTERNAL.withDescription(errorMessage).asRuntimeException());
+        }
+    }
 }

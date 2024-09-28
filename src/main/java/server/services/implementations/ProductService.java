@@ -40,7 +40,7 @@ public class ProductService implements IProductService{
 	@Transactional(readOnly = true)
 	public List<Product> findAll() {
 
-		return repository.findAll();
+		return repository.findAll(); // retorna la lista de productos
 	}
 	
 	@Override

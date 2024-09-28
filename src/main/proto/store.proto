@@ -6,6 +6,8 @@ option java_outer_classname = "StoreProto";
 
 package store;
 
+import "stock.proto";
+
 message StoreGrpc {
     string code = 1;
     string address = 2;
@@ -19,6 +21,19 @@ message RequestCode {
     string code = 1;
 }
 
+// Solicitud para obtener tiendas por estado (habilitadas/deshabilitadas)
+message StoreStateRequest {
+    bool active = 1;  // true para habilitadas, false para deshabilitadas
+}
+
+// Respuesta con la lista de tiendas
+message StoreListResponse {
+    repeated StoreGrpc stores = 1;
+}
+
 service StoreGrpcService {
     rpc getStoreGrpc (RequestCode) returns (StoreGrpc);
+    
+    // Nuevo método para traer tiendas por estado
+    rpc GetStoresByState(StoreStateRequest) returns (StoreListResponse);  
 }

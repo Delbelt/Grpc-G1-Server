@@ -21,11 +21,16 @@ public class StoreService implements IStoreService{
     private IStoreRepository repository;
 
     @Override
-    @Transactional(readOnly = true)
     public Store getStoreByCode(String code) {
         var response = repository.findByCode(code);
-        log.info("[StoreService][getStoreByCode]: " + response);
+        log.info("[StoreService][getStoreByCode] Code: " + code + ", Response: " + response);
         return response;
+    }
+    
+    @Override
+    public List<Store> getStoresByState(boolean active) {
+    	return repository.findByActive(active);
+    	
     }
 
     @Override
@@ -37,7 +42,7 @@ public class StoreService implements IStoreService{
     @Override
     @Transactional
     public Store createStore(Store store) {
-        // You might want to add validation or additional logic here
+        
         var response = repository.save(store);
         log.info("[StoreService][createStore]: Created or updated store: " + response);
         return response;

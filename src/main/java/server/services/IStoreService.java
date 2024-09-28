@@ -12,6 +12,9 @@ public interface IStoreService {
 
     // Método para obtener todas las tiendas
     List<Store> getAllStores();
+    
+    // Metodo traer todas las tiendas por estado (habilitado o deshabilitado)
+    List<Store> getStoresByState(boolean active);
 
     // Método para crear una nueva tienda
     Store createStore(Store store);

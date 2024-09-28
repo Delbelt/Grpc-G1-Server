@@ -66,4 +66,34 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 		}
 		 
 	}
+	
+	@Override
+    public void getAllProducts(Empty request, StreamObserver<ProductList> responseObserver) {
+        try {
+            var products = services.findAll();
+
+            // Mapea la lista de entidades Product a la lista de mensajes ProductGrpc
+            ProductList.Builder productListBuilder = ProductList.newBuilder();
+            for (Product product : products) {
+                ProductGrpc productGrpc = ProductGrpc.newBuilder()
+                    .setCode(product.getCode())
+                    .setName(product.getName())
+                    .setSize(product.getSize())
+                    .setPhoto(product.getPhoto())
+                    .setColor(product.getColor())
+                    .setActive(product.isActive())
+                    .build();
+                productListBuilder.addProducts(productGrpc);
+            }
+
+            // Envía la lista de productos al cliente
+            responseObserver.onNext(productListBuilder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(
+                Status.INTERNAL.withDescription("Internal server error: " + e.getMessage())
+                .asRuntimeException()
+            );
+        }
+    }
 }

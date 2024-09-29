@@ -4,12 +4,17 @@ import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.protobuf.ByteString;
+
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import server.ProductGrpcServiceGrpc.ProductGrpcServiceImplBase;
+import server.ProductProto.Empty;
 import server.ProductProto.ProductGrpc;
+import server.ProductProto.ProductList;
 import server.ProductProto.RequestId;
+import server.entities.Product;
 import server.services.IProductService;
 
 
@@ -39,7 +44,7 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 					.setCode(response.getCode())
 					.setName(response.getName())
 					.setSize(response.getSize())
-					.setPhoto(response.getPhoto())
+			        .setPhoto(ByteString.copyFrom(response.getPhoto()))  // Usa 'response' en lugar de 'product'
 					.setColor(response.getColor())
 					.setActive(response.isActive())
 					.build();
@@ -79,7 +84,7 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
                     .setCode(product.getCode())
                     .setName(product.getName())
                     .setSize(product.getSize())
-                    .setPhoto(product.getPhoto())
+                    .setPhoto(ByteString.copyFrom(product.getPhoto()))
                     .setColor(product.getColor())
                     .setActive(product.isActive())
                     .build();

@@ -5,7 +5,7 @@ package stock;
 // Importa el proto del producto
 import "product.proto";
 
-// Mensaje Stock que contiene solo los códigos de store y product
+// Mensaje Stock que contiene product y el codigo de store
 message StockGrpc {
     string code = 1;
     string storeCode = 2; // Es string ya que en el mensaje se muestra solo el codigo, no el store completo
@@ -26,10 +26,16 @@ message StockList {
     repeated StockGrpc stocks = 1;
 }
 
+// Mensaje para obtener Stocks por el código del producto
+message GetStockByProductRequest {
+    string productCode = 1;
+}
+
 // Definición del servicio gRPC
 service StockGrpcService {
     rpc getStockById(GetStockByIdRequest) returns (StockGrpc);
     rpc getAllStocks(Empty) returns (StockList);
     rpc getAvailableStocks(Empty) returns (StockList);
     rpc getUnavailableStocks(Empty) returns (StockList);
+    rpc getStockByProduct(GetStockByProductRequest) returns (StockList);
 }

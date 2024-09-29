@@ -17,5 +17,8 @@ public interface IStockRepository extends JpaRepository<Stock, String> {
     List<Stock> findByQuantityGreaterThan(int quantity);
     // Encuentra todos los stock no disponibles (Cantidad = 0)
     List<Stock> findByQuantity(int quantity);
+    // Encuentra todos los stocks que contengan el mismo producto
+    List<Stock> findByProduct_Code(String productCode);
+
 	
 }

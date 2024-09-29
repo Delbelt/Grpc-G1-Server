@@ -87,4 +87,13 @@ public class StockService implements IStockService{
         log.info("[StockService][findUnavailableStocks]: Unavailable stocks found: {}", unavailableStocks);
         return unavailableStocks;
     }
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Stock> getStockByProduct(String productCode) {
+	    List<Stock> stocks = repository.findByProduct_Code(productCode);
+	    log.info("[StockService][getStockByProduct]: Stocks found for product {}: {}", productCode, stocks);
+	    return stocks;
+	}
+
 }

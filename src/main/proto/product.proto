@@ -19,7 +19,7 @@ message ProductGrpc {
     string code = 1;
     string name = 2;
     string size = 3;
-    string photo = 4;
+    bytes photo = 4;   
     string color = 5;
     bool active = 6;
 }

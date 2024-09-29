@@ -17,6 +17,7 @@ import server.services.IStockService;
 import stock.Stock.Empty;
 import stock.Stock.GetStockByIdRequest;
 import stock.Stock.GetStockByProductRequest;
+import stock.Stock.GetStockByStoreRequest;
 import stock.Stock.StockGrpc;
 import stock.Stock.StockList;
 import stock.StockGrpcServiceGrpc.StockGrpcServiceImplBase;
@@ -243,4 +244,54 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
             responseObserver.onError(Status.INTERNAL.withDescription(errorMessage).asRuntimeException());
         }
     }
+    @Override
+    @RoleAuth({Roles.ADMIN})
+    public void getStockByStore(GetStockByStoreRequest request, StreamObserver<StockList> responseObserver) {
+        try {
+            // Obtener stocks por código de tienda
+            List<Stock> stocks = stockService.getStockByStore(request.getStoreCode());
+
+            if (stocks.isEmpty()) {
+                String messageError = "No stocks found for store " + request.getStoreCode();
+                throw new NoSuchElementException(messageError);
+            }
+
+            // Convertir la lista de entidades Stock a una lista de StockGrpc
+            List<StockGrpc> grpcStocks = stocks.stream().map(stock -> {
+                ProductGrpc productGrpc = ProductGrpc.newBuilder()
+                        .setCode(stock.getProduct().getCode())
+                        .setName(stock.getProduct().getName())
+                        .setSize(stock.getProduct().getSize())
+                        .setColor(stock.getProduct().getColor())
+                        .build();
+
+                return StockGrpc.newBuilder()
+                        .setCode(stock.getCode())                 // Código del stock
+                        .setStoreCode(stock.getStore().getCode()) // Solo código del store
+                        .setProduct(productGrpc) // Objeto product obtenido
+                        .setQuantity(stock.getQuantity())         // Cantidad
+                        .build();
+            }).collect(Collectors.toList());
+
+            // Construir la respuesta de StockList
+            StockList stockList = StockList.newBuilder()
+                    .addAllStocks(grpcStocks)
+                    .build();
+
+            // Enviar la respuesta y completar la comunicación
+            responseObserver.onNext(stockList);
+            responseObserver.onCompleted();
+
+        } catch (NoSuchElementException e) {
+            responseObserver
+                .onError(Status.NOT_FOUND.withDescription(e.getMessage())
+                .asRuntimeException());
+        } catch (Exception e) {
+            String errorMessage = "Internal server error: " + e.getMessage();
+            responseObserver
+                .onError(Status.INTERNAL.withDescription(errorMessage)
+                .asRuntimeException());
+        }
+    }
+
 }

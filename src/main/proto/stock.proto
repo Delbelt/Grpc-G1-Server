@@ -31,6 +31,11 @@ message GetStockByProductRequest {
     string productCode = 1;
 }
 
+// Mensaje para obtener un Stock por su código de tienda
+message GetStockByStoreRequest {
+    string storeCode = 1;
+}
+
 // Definición del servicio gRPC
 service StockGrpcService {
     rpc getStockById(GetStockByIdRequest) returns (StockGrpc);
@@ -38,4 +43,5 @@ service StockGrpcService {
     rpc getAvailableStocks(Empty) returns (StockList);
     rpc getUnavailableStocks(Empty) returns (StockList);
     rpc getStockByProduct(GetStockByProductRequest) returns (StockList);
+    rpc getStockByStore(GetStockByStoreRequest) returns (StockList);
 }

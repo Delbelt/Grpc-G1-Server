@@ -14,6 +14,7 @@ import server.ProductProto.Empty;
 import server.ProductProto.ProductGrpc;
 import server.ProductProto.ProductList;
 import server.ProductProto.RequestId;
+import server.ProductProto.ResponseMessage;
 import server.entities.Product;
 import server.services.IProductService;
 
@@ -101,4 +102,47 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
             );
         }
     }
-}
+	
+	@Override
+	public void createProduct(ProductGrpc request, StreamObserver<ResponseMessage> responseObserver) {
+	    try {
+	        // Crear una nueva entidad Product a partir de los datos recibidos
+	        Product newProduct = new Product();
+	        newProduct.setCode(request.getCode());
+	        newProduct.setName(request.getName());
+	        newProduct.setSize(request.getSize());
+	        newProduct.setPhoto(request.getPhoto().toByteArray()); // Convertimos ByteString a byte[]
+	        newProduct.setColor(request.getColor());
+	        newProduct.setActive(request.getActive());
+
+	        // Usar el servicio para insertar o actualizar el producto
+	        boolean isSaved = services.insertOrUpdate(newProduct);
+
+	        // Preparar la respuesta para el cliente
+	        ResponseMessage response;
+	        if (isSaved) {
+	            response = ResponseMessage.newBuilder()
+	                .setMessage("Product created successfully with code: " + newProduct.getCode())
+	                .build();
+	        } else {
+	            response = ResponseMessage.newBuilder()
+	                .setMessage("Failed to create or update the product.")
+	                .build();
+	        }
+
+	        // Enviar la respuesta al cliente
+	        responseObserver.onNext(response);
+	        responseObserver.onCompleted();
+
+	    } catch (Exception e) {
+	        // Manejar errores inesperados
+	        responseObserver.onError(
+	            Status.INTERNAL.withDescription("Internal server error: " + e.getMessage())
+	            .asRuntimeException()
+	        );
+	    }
+	}
+
+	}
+
+

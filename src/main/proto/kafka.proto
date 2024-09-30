@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_package = "server"; 
+option java_outer_classname = "kafkaProto";
+
+package kafka;
+
+service KafkaGrpcService {
+    rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+}
+
+message SendMessageRequest {
+    string topic = 1;
+    string message = 2;
+}
+
+message SendMessageResponse {
+	bool success = 1;
+    string message = 2;
+}

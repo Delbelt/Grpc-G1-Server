@@ -86,7 +86,14 @@
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>		
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+		<!-- Dependencies KAFKA -->
+
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
 		</dependency>
 
 		<!-- Dependencies GRPC -->

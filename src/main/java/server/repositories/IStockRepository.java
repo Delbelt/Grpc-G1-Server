@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.google.common.base.Optional;
+
 import server.entities.Product;
 import server.entities.Stock;
 
@@ -19,6 +21,8 @@ public interface IStockRepository extends JpaRepository<Stock, String> {
     List<Stock> findByQuantity(int quantity);
     // Encuentra todos los stocks que contengan el mismo producto
     List<Stock> findByProduct_Code(String productCode);
+    // Verifica si existe un stock por codeProduct y codeStore
+    Optional<Stock> findByProduct_CodeAndStore_Code(String productCode, String storeCode);
 
 	
 }

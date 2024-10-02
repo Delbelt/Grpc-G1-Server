@@ -19,6 +19,9 @@ public interface IStoreService {
     // Método para crear una nueva tienda
     Store createStore(Store store);
 
+    // Método para habilitar/deshabilitar una tienda
+    Store changeStoreState(String code, boolean active);
+    
     // Método para actualizar una tienda existente
     Store updateStore(Store store);
 

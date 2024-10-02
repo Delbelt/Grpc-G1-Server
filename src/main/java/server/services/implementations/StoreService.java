@@ -1,6 +1,10 @@
 package server.services.implementations;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,19 +24,74 @@ public class StoreService implements IStoreService{
 	@Autowired
     private IStoreRepository repository;
 
-    @Override
-    public Store getStoreByCode(String code) {
-        var response = repository.findByCode(code);
-        log.info("[StoreService][getStoreByCode] Code: " + code + ", Response: " + response);
-        return response;
-    }
+	/*@Override
+	@Transactional(readOnly = true)
+	public Store getStoreByCode(String code) {
+	    // Primero, cargar la tienda con usuarios
+	    Store store = repository.findStoreWithUsers(code);
+	    
+	    if (store == null) {
+	        throw new NoSuchElementException("Store with code " + code + " not found");
+	    }
+	    
+	    // Luego, cargar los stocks
+	    store.setStocks(repository.findStoreWithStocks(code).getStocks()); 
+	    
+	    return store;
+	}
     
     @Override
     public List<Store> getStoresByState(boolean active) {
-    	return repository.findByActive(active);
     	
-    }
+        List<Store> storesWithStocks = repository.findStoresByActiveWithStocks(active);
 
+        
+        List<Store> storesWithUsers = repository.findStoresByActiveWithUsers(active);
+
+        
+        Map<String, Store> storeMap = new HashMap<>();
+        
+        
+        for (Store store : storesWithStocks) {
+            storeMap.put(store.getCode(), store);
+        }
+
+        
+        for (Store store : storesWithUsers) {
+            if (storeMap.containsKey(store.getCode())) {
+                storeMap.get(store.getCode()).setUsers(store.getUsers());  
+            } else {
+                storeMap.put(store.getCode(), store);
+            }
+        }
+
+        return new ArrayList<>(storeMap.values());
+    	
+    }*/
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Store getStoreByCode(String code) {
+	    Store store = repository.findByCode(code);
+	    
+	    if (store == null) {
+	        throw new NoSuchElementException("Store with code " + code + " not found");
+	    }
+	    log.info("Store: " + store.getCode() + ", Stocks: " + store.getStocks().size());
+	    return store; 
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Store> getStoresByState(boolean active) {
+	    List<Store> stores = repository.findByActive(active);
+
+	    if (stores.isEmpty()) {
+	        throw new NoSuchElementException("No stores found for the requested state.");
+	    }
+
+	    return stores;
+	}
     @Override
     @Transactional(readOnly = true)
     public List<Store> getAllStores() {
@@ -44,9 +103,25 @@ public class StoreService implements IStoreService{
     public Store createStore(Store store) {
         
         var response = repository.save(store);
-        log.info("[StoreService][createStore]: Created or updated store: " + response);
+        log.info("[StoreService][createStore]: Creating store with code {}", store.getCode());
         return response;
     }
+    
+    @Override
+    @Transactional
+    public Store changeStoreState(String code, boolean active) {
+        // Buscar la tienda por código
+        Store store = repository.findByCode(code);
+                
+
+        // Actualizar el estado
+        store.setActive(active);
+        log.info("[StoreService][changeStoreState]: Store with code {} is now {}", code, active ? "enabled" : "disabled");
+
+        
+        return repository.save(store);
+    }
+
 
     @Override
     @Transactional

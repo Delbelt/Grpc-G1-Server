@@ -105,9 +105,9 @@ public class StockService implements IStockService{
 	    return stocks;
 	}
 
-	@Override
+    @Override
     @Transactional
-    public Stock createStock(String storeCode, String productCode) {
+    public Stock createStock(String storeCode, String productCode, int quantity) {
         try {
             // Obtener la tienda por código
             var store = storeRepository.findByCode(storeCode);
@@ -126,12 +126,12 @@ public class StockService implements IStockService{
             stock.setCode(UUID.randomUUID().toString()); // Generar un código único
             stock.setStore(store);
             stock.setProduct(product);
-            stock.setQuantity(0); // Cantidad inicial 0
+            stock.setQuantity(quantity); // Asignar la cantidad recibida
 
             // Guardar el stock en la base de datos
             repository.save(stock);
 
-            log.info("[StockService][createStock]: Stock created for store {} and product {} with quantity 0", storeCode, productCode);
+            log.info("[StockService][createStock]: Stock created for store {} and product {} with quantity {}", storeCode, productCode, quantity);
 
             return stock;
         } catch (Exception e) {
@@ -139,6 +139,7 @@ public class StockService implements IStockService{
             throw new RuntimeException("Error creating stock: " + e.getMessage());
         }
     }
+
 	@Override
 	@Transactional(readOnly = true)
 	public boolean stockExists(String productCode, String storeCode) {

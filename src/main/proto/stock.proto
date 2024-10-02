@@ -40,6 +40,7 @@ message GetStockByStoreRequest {
 message CreateStockRequest {
     string storeCode = 1;
     string productCode = 2;
+    int32 quantity = 3;
 }
 
 // Definición del servicio gRPC

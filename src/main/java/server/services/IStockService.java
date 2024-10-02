@@ -23,7 +23,7 @@ public interface IStockService {
 	
 	public List<Stock> getStockByProduct(String productCode); // Obtiene lista de todos los stock que contienen el producto
 
-	public Stock createStock(String storeCode, String productCode);
+	public Stock createStock(String storeCode, String productCode, int quantity);
 	
 	boolean stockExists(String productCode, String storeCode);
 }

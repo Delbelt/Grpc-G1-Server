@@ -247,37 +247,40 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 	@Override
 	@RoleAuth({ Roles.ADMIN })
 	public void createStock(CreateStockRequest request, StreamObserver<StockGrpc> responseObserver) {
+	    try {
+	        // 1. Verificar si el stock ya existe
+	        if (stockService.stockExists(request.getProductCode(), request.getStoreCode())) {
+	            String messageError = "Stock already exists for product " + request.getProductCode() + " and store " + request.getStoreCode();
+	            throw new NoSuchElementException(messageError);
+	        }
 
-		try {
-			// 1. Verificar si el stock ya existe
-			if (stockService.stockExists(request.getProductCode(), request.getStoreCode())) {
-				String messageError = "Stock already exists for product " + request.getProductCode() + " and store "
-						+ request.getStoreCode();
-				throw new NoSuchElementException(messageError);
-			}
+	        // Crear el nuevo stock, pasando también la cantidad
+	        Stock newStock = stockService.createStock(request.getStoreCode(), request.getProductCode(), request.getQuantity());
 
-			// Crear el nuevo stock
-			Stock newStock = stockService.createStock(request.getStoreCode(), request.getProductCode());
+	        // Construir el producto gRPC
+	        ProductGrpc productGrpc = ProductGrpc.newBuilder()
+	                .setCode(newStock.getProduct().getCode())
+	                .setName(newStock.getProduct().getName())
+	                .setSize(newStock.getProduct().getSize())
+	                .setColor(newStock.getProduct().getColor()).build();
 
-			// Construir el producto gRPC
-			ProductGrpc productGrpc = ProductGrpc.newBuilder().setCode(newStock.getProduct().getCode())
-					.setName(newStock.getProduct().getName()).setSize(newStock.getProduct().getSize())
-					.setColor(newStock.getProduct().getColor()).build();
+	        // Construir la respuesta gRPC
+	        StockGrpc stockGrpc = StockGrpc.newBuilder()
+	                .setCode(newStock.getCode())
+	                .setStoreCode(newStock.getStore().getCode())
+	                .setProduct(productGrpc)
+	                .setQuantity(newStock.getQuantity()).build();
 
-			// Construir la respuesta gRPC
-			StockGrpc stockGrpc = StockGrpc.newBuilder().setCode(newStock.getCode())
-					.setStoreCode(newStock.getStore().getCode()).setProduct(productGrpc)
-					.setQuantity(newStock.getQuantity()).build();
-
-			// Enviar la respuesta
-			responseObserver.onNext(stockGrpc);
-			responseObserver.onCompleted();
-		} catch (NoSuchElementException e) {
-			responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
-		} catch (Exception e) {
-			String errorMessage = "Internal server error: " + e.getMessage();
-			responseObserver.onError(Status.INTERNAL.withDescription(errorMessage).asRuntimeException());
-		}
+	        // Enviar la respuesta
+	        responseObserver.onNext(stockGrpc);
+	        responseObserver.onCompleted();
+	    } catch (NoSuchElementException e) {
+	        responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
+	    } catch (Exception e) {
+	        String errorMessage = "Internal server error: " + e.getMessage();
+	        responseObserver.onError(Status.INTERNAL.withDescription(errorMessage).asRuntimeException());
+	    }
 	}
+
 
 }

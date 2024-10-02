@@ -42,8 +42,11 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 			}
 
 			// Construir la respuesta de ProductGrpc
-			ProductGrpc productGrpc = ProductGrpc.newBuilder().setCode(stock.getProduct().getCode())
-					.setName(stock.getProduct().getName()).setSize(stock.getProduct().getSize())
+			ProductGrpc productGrpc = ProductGrpc.newBuilder()
+					.setCode(stock.getProduct().getCode())
+					.setName(stock.getProduct().getName())
+					.setSize(stock.getProduct().getSize())
+					.setPhoto(stock.getProduct().getPhoto())
 					.setColor(stock.getProduct().getColor()).build();
 			// Construir la respuesta de StockGrpc, solo con los códigos
 			StockGrpc stockGrpc = StockGrpc.newBuilder().setCode(stock.getCode()) // Código del stock
@@ -79,8 +82,11 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 
 			// Convertir la lista de entidades Stock a una lista de StockGrpc
 			List<StockGrpc> grpcStocks = stocks.stream().map(stock -> {
-				ProductGrpc productGrpc = ProductGrpc.newBuilder().setCode(stock.getProduct().getCode())
-						.setName(stock.getProduct().getName()).setSize(stock.getProduct().getSize())
+				ProductGrpc productGrpc = ProductGrpc.newBuilder()
+						.setCode(stock.getProduct().getCode())
+						.setName(stock.getProduct().getName())
+						.setSize(stock.getProduct().getSize())
+						.setPhoto(stock.getProduct().getPhoto())
 						.setColor(stock.getProduct().getColor()).build();
 
 				return StockGrpc.newBuilder().setCode(stock.getCode()) // Código del stock
@@ -115,8 +121,11 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 
 			// Convertir a gRPC
 			List<StockGrpc> grpcStocks = availableStocks.stream().map(stock -> {
-				ProductGrpc productGrpc = ProductGrpc.newBuilder().setCode(stock.getProduct().getCode())
-						.setName(stock.getProduct().getName()).setSize(stock.getProduct().getSize())
+				ProductGrpc productGrpc = ProductGrpc.newBuilder()
+						.setCode(stock.getProduct().getCode())
+						.setName(stock.getProduct().getName())
+						.setSize(stock.getProduct().getSize())
+						.setPhoto(stock.getProduct().getPhoto())
 						.setColor(stock.getProduct().getColor()).build();
 
 				return StockGrpc.newBuilder().setCode(stock.getCode()).setStoreCode(stock.getStore().getCode())
@@ -147,7 +156,9 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 
 			for (Stock stock : unavailableStocks) {
 				ProductGrpc productGrpc = ProductGrpc.newBuilder().setCode(stock.getProduct().getCode())
-						.setName(stock.getProduct().getName()).setSize(stock.getProduct().getSize())
+						.setName(stock.getProduct().getName())
+						.setSize(stock.getProduct().getSize())
+						.setPhoto(stock.getProduct().getPhoto())
 						.setColor(stock.getProduct().getColor()).build();
 
 				StockGrpc stockGrpc = StockGrpc.newBuilder().setCode(stock.getCode())
@@ -182,7 +193,9 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 			// Convertir la lista de entidades Stock a una lista de StockGrpc
 			List<StockGrpc> grpcStocks = stocks.stream().map(stock -> {
 				ProductGrpc productGrpc = ProductGrpc.newBuilder().setCode(stock.getProduct().getCode())
-						.setName(stock.getProduct().getName()).setSize(stock.getProduct().getSize())
+						.setName(stock.getProduct().getName())
+						.setSize(stock.getProduct().getSize())
+						.setPhoto(stock.getProduct().getPhoto())
 						.setColor(stock.getProduct().getColor()).build();
 
 				return StockGrpc.newBuilder().setCode(stock.getCode()).setStoreCode(stock.getStore().getCode())
@@ -219,7 +232,9 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 			// Convertir la lista de entidades Stock a una lista de StockGrpc
 			List<StockGrpc> grpcStocks = stocks.stream().map(stock -> {
 				ProductGrpc productGrpc = ProductGrpc.newBuilder().setCode(stock.getProduct().getCode())
-						.setName(stock.getProduct().getName()).setSize(stock.getProduct().getSize())
+						.setName(stock.getProduct().getName())
+						.setSize(stock.getProduct().getSize())
+						.setPhoto(stock.getProduct().getPhoto())
 						.setColor(stock.getProduct().getColor()).build();
 
 				return StockGrpc.newBuilder().setCode(stock.getCode()) // Código del stock
@@ -262,6 +277,7 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 	                .setCode(newStock.getProduct().getCode())
 	                .setName(newStock.getProduct().getName())
 	                .setSize(newStock.getProduct().getSize())
+	                .setPhoto(newStock.getProduct().getPhoto())
 	                .setColor(newStock.getProduct().getColor()).build();
 
 	        // Construir la respuesta gRPC

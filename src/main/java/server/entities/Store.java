@@ -1,8 +1,16 @@
 package server.entities;
 
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -26,8 +34,9 @@ public class Store {
     @Column(name = "active")
     private boolean active;
 
-    //@OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-    //private List<Stock> stocks;
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Stock> stocks = new ArrayList<>();
 
-    
+    @OneToMany(cascade = CascadeType.MERGE)
+    private Set<User> users = new HashSet<>();
 }

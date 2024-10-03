@@ -21,4 +21,9 @@ public interface IStockService {
 
 	public List<Stock> findUnavailableStocks(); // Obtiene lista de todos stocks no disponibles
 	
+	public List<Stock> getStockByProduct(String productCode); // Obtiene lista de todos los stock que contienen el producto
+
+	public Stock createStock(String storeCode, String productCode, int quantity);
+	
+	boolean stockExists(String productCode, String storeCode);
 }

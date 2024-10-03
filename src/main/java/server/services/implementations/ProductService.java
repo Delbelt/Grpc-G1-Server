@@ -71,4 +71,17 @@ public class ProductService implements IProductService{
 	}
 
 	
+	
+	    @Override
+	    @Transactional(readOnly = true)
+	    public List<Product> findProductsByFilter(String code, String name, String size, String color) {
+	        List<Product> filteredProducts = repository.findProductsByFilter(
+	            code.isEmpty() ? null : code,
+	            name.isEmpty() ? null : name,
+	            size.isEmpty() ? null : size,
+	            color.isEmpty() ? null : color
+	        );
+	        log.info("[ProductService][findProductsByFilter]: " + filteredProducts);
+	        return filteredProducts;
+	    }
 }

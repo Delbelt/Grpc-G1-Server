@@ -1,6 +1,8 @@
 package server.grpc;
 
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -11,6 +13,7 @@ import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import server.ProductGrpcServiceGrpc.ProductGrpcServiceImplBase;
 import server.ProductProto.Empty;
+import server.ProductProto.ProductFilterRequest;
 import server.ProductProto.ProductGrpc;
 import server.ProductProto.ProductList;
 import server.ProductProto.RequestId;
@@ -142,6 +145,48 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	        );
 	    }
 	}
+	
+	@Override
+	public void getProductsByFilter(ProductFilterRequest request, StreamObserver<ProductList> responseObserver) {
+	    try {
+	        // Obtener todos los productos desde el servicio
+	        List<Product> allProducts = services.findAll();
+
+	        // Aplicar filtros a los productos en memoria
+	        List<Product> filteredProducts = allProducts.stream()
+	                .filter(product -> (request.getCode().isEmpty() || product.getCode().equals(request.getCode())))
+	                .filter(product -> (request.getName().isEmpty() || product.getName().equals(request.getName())))
+	                .filter(product -> (request.getSize().isEmpty() || product.getSize().equals(request.getSize())))
+	                .filter(product -> (request.getColor().isEmpty() || product.getColor().equals(request.getColor())))
+	                .collect(Collectors.toList());
+
+	        // Convertir los productos filtrados a ProductGrpc
+	        ProductList.Builder productListBuilder = ProductList.newBuilder();
+	        for (Product product : filteredProducts) {
+	            ProductGrpc productGrpc = ProductGrpc.newBuilder()
+	                .setCode(product.getCode())
+	                .setName(product.getName() != null ? product.getName() : "")
+	                .setSize(product.getSize() != null ? product.getSize() : "")
+	                .setColor(product.getColor() != null ? product.getColor() : "")
+	                .setActive(product.isActive())
+	                .setPhoto(ByteString.copyFrom(product.getPhoto() != null ? product.getPhoto() : new byte[0]))
+	                .build();
+	            productListBuilder.addProducts(productGrpc);
+	        }
+
+	        // Enviar la lista de productos filtrados al cliente
+	        responseObserver.onNext(productListBuilder.build());
+	        responseObserver.onCompleted();
+
+	    } catch (Exception e) {
+	      
+	        responseObserver.onError(
+	            Status.INTERNAL.withDescription("Internal server error: " + e.getMessage())
+	            .asRuntimeException()
+	        );
+	    }
+	}
+
 
 	}
 

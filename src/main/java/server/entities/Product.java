@@ -22,7 +22,7 @@ public class Product {
 	private String size;
 	
 	@Lob
-	@Column(name = "photo", columnDefinition = "LONGBLOB", nullable = false)
+	@Column(name = "photo", columnDefinition = "LONGBLOB", nullable = true)
     private byte[] photo;
 	
 	@Column(name="color", nullable=false)

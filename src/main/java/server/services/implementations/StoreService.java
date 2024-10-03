@@ -1,9 +1,9 @@
 package server.services.implementations;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
+
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
+import server.entities.Product;
+import server.entities.Stock;
 import server.entities.Store;
+import server.repositories.IProductRepository;
+import server.repositories.IStockRepository;
 import server.repositories.IStoreRepository;
 import server.services.IStoreService;
 
@@ -23,51 +27,16 @@ public class StoreService implements IStoreService{
 
 	@Autowired
     private IStoreRepository repository;
+	
+	@Autowired
+	private IProductRepository productRepository;
+	
+	@Autowired
+	private IStockRepository stockRepository;
 
-	/*@Override
-	@Transactional(readOnly = true)
-	public Store getStoreByCode(String code) {
-	    // Primero, cargar la tienda con usuarios
-	    Store store = repository.findStoreWithUsers(code);
-	    
-	    if (store == null) {
-	        throw new NoSuchElementException("Store with code " + code + " not found");
-	    }
-	    
-	    // Luego, cargar los stocks
-	    store.setStocks(repository.findStoreWithStocks(code).getStocks()); 
-	    
-	    return store;
-	}
-    
-    @Override
-    public List<Store> getStoresByState(boolean active) {
-    	
-        List<Store> storesWithStocks = repository.findStoresByActiveWithStocks(active);
-
-        
-        List<Store> storesWithUsers = repository.findStoresByActiveWithUsers(active);
-
-        
-        Map<String, Store> storeMap = new HashMap<>();
-        
-        
-        for (Store store : storesWithStocks) {
-            storeMap.put(store.getCode(), store);
-        }
-
-        
-        for (Store store : storesWithUsers) {
-            if (storeMap.containsKey(store.getCode())) {
-                storeMap.get(store.getCode()).setUsers(store.getUsers());  
-            } else {
-                storeMap.put(store.getCode(), store);
-            }
-        }
-
-        return new ArrayList<>(storeMap.values());
-    	
-    }*/
+	@Autowired
+	private StockService stockService;
+	
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -153,4 +122,32 @@ public class StoreService implements IStoreService{
         }
         return isDelete;
     }
+    
+    @Override
+    @Transactional
+    public void assignProductToStore(String storeCode, String productCode) {
+        // 1. Verificar que la tienda existe
+        Store store = repository.findByCode(storeCode);
+        if (store == null) {
+            throw new NoSuchElementException("Store not found with code: " + storeCode);
+        }   
+
+        
+        Product product = productRepository.findByCode(productCode);
+        if (product == null) {
+            throw new NoSuchElementException("Product not found with code: " + productCode);
+        }
+
+        
+        if (stockRepository.findByProduct_CodeAndStore_Code(productCode, storeCode).isPresent()) {
+            String messageError = "Stock already exists for product " + productCode + " and store " + storeCode;
+            throw new NoSuchElementException(messageError);
+        }
+
+        
+        Stock newStock = stockService.createStock(storeCode, productCode, 0); 
+
+        log.info("Successfully assigned product {} to store {} with stock code {}", productCode, storeCode, newStock.getCode());
+    }
+
 }

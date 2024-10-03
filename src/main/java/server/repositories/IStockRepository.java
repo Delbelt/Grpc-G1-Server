@@ -3,6 +3,7 @@ package server.repositories;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.google.common.base.Optional;
 
@@ -23,6 +24,9 @@ public interface IStockRepository extends JpaRepository<Stock, String> {
     List<Stock> findByProduct_Code(String productCode);
     // Verifica si existe un stock por codeProduct y codeStore
     Optional<Stock> findByProduct_CodeAndStore_Code(String productCode, String storeCode);
+    
+    @Query("SELECT s FROM Stock s WHERE s.store.code = :codeStore AND s.product.code = :codeProduct")
+    public Stock findByStoreAndProduct(String codeStore, String codeProduct);
 
 	
 }

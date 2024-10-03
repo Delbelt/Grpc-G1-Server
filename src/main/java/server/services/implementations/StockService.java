@@ -145,4 +145,11 @@ public class StockService implements IStockService{
 	public boolean stockExists(String productCode, String storeCode) {
 	    return repository.findByProduct_CodeAndStore_Code(productCode, storeCode).isPresent();
 	}
+	
+	
+	public Stock findByStoreAndProduct(String codeStore, String codeProduct) {
+		var response = repository.findByStoreAndProduct(codeStore, codeProduct);
+		
+		return response;
+	}
 }

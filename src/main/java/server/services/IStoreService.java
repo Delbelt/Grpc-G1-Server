@@ -27,7 +27,9 @@ public interface IStoreService {
 
     // Método para eliminar una tienda por su código
     boolean deleteStore(String code);
-    
+   
+    // Método para asignar un producto a una tienda
+    void assignProductToStore(String storeCode, String productCode);
     
 
 	

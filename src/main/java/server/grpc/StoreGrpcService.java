@@ -11,6 +11,7 @@ import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 import server.StoreGrpcServiceGrpc.StoreGrpcServiceImplBase;
+import server.StoreProto.AssignProductRequest;
 import server.StoreProto.ChangeStoreStateRequest;
 import server.StoreProto.ProductGrpc;
 import server.StoreProto.RequestCode;
@@ -19,11 +20,14 @@ import server.StoreProto.StoreGrpc;
 import server.StoreProto.StoreListResponse;
 import server.StoreProto.StoreStateRequest;
 import server.StoreProto.UserGrpc;
+import server.entities.Product;
 import server.entities.Stock;
 import server.entities.Store;
 import server.entities.User;
 import server.security.GrpcSecurityConfig.RoleAuth;
 import server.security.Roles;
+import server.services.IProductService;
+import server.services.IStockService;
 import server.services.IStoreService;
 
 @GrpcService
@@ -31,14 +35,22 @@ public class StoreGrpcService extends StoreGrpcServiceImplBase{
 	@Autowired
     private IStoreService storeService;
 
+	@Autowired
+    private IProductService productService;
+    
+    @Autowired
+    private IStockService stockService;
+    
 	private List<StockGrpc> convertStocksToGrpc(List<Stock> list) {
         List<StockGrpc> stockGrpcList = new ArrayList<>();
         for (Stock stock : list) {
             StockGrpc stockGrpc = StockGrpc.newBuilder()
                 .setCode(stock.getCode())
                 .setProduct(ProductGrpc.newBuilder()
+                	.setCode(stock.getProduct().getCode())
                     .setName(stock.getProduct().getName())
                     .setSize(stock.getProduct().getSize())
+                    .setPhoto(stock.getProduct().getPhoto())
                     .setColor(stock.getProduct().getColor())
                     .build())
                 .setQuantity(stock.getQuantity())
@@ -228,7 +240,55 @@ public class StoreGrpcService extends StoreGrpcServiceImplBase{
             responseObserver.onError(Status.INTERNAL.withDescription(messageError).asRuntimeException());
         }
     }
+    
+    @Override
+    @RoleAuth({Roles.ADMIN, Roles.CENTRAL})
+    public void assignProductToStore(AssignProductRequest request, StreamObserver<StockGrpc> responseObserver) {
+        try {
+            
+            Product product = productService.findByCode(request.getProductCode());
+            if (product == null) {
+                throw new NoSuchElementException("Product not found with code: " + request.getProductCode());
+            }
 
+           
+            Store store = storeService.getStoreByCode(request.getStoreCode()); 
+            if (store == null) {
+                throw new NoSuchElementException("Store not found with code: " + request.getStoreCode());
+            }
+
+            
+            if (stockService.stockExists(request.getProductCode(), request.getStoreCode())) {
+                String messageError = "Stock already exists for product " + request.getProductCode() + " and store " + request.getStoreCode();
+                throw new NoSuchElementException(messageError);
+            }
+
+            
+            Stock newStock = stockService.createStock(request.getStoreCode(), request.getProductCode(), 0); 
+
+            
+            ProductGrpc productGrpc = ProductGrpc.newBuilder()
+                    .setCode(newStock.getProduct().getCode())
+                    .setName(newStock.getProduct().getName())
+                    .setSize(newStock.getProduct().getSize())
+                    .setPhoto(newStock.getProduct().getPhoto())
+                    .setColor(newStock.getProduct().getColor())
+                    .build();
+            StockGrpc stockGrpc = StockGrpc.newBuilder()
+                    .setCode(newStock.getCode())
+                    .setProduct(productGrpc)
+                    .build();
+
+            // 6. Enviar la respuesta
+            responseObserver.onNext(stockGrpc);
+            responseObserver.onCompleted();
+            
+        } catch (NoSuchElementException e) {
+            responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL.withDescription("Internal server error: " + e.getMessage()).asRuntimeException());
+        }
+    }
 
     
     

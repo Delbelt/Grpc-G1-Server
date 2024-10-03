@@ -9,7 +9,7 @@ service ProductGrpcService {
  rpc GetProductByCode (RequestId) returns (ProductGrpc);
  rpc GetAllProducts (Empty) returns (ProductList); // Nuevo método para obtener todos los productos
  rpc CreateProduct(ProductGrpc) returns (ResponseMessage);
-
+ rpc GetProductsByFilter (ProductFilterRequest) returns (ProductList);
 }
 
 message RequestId {
@@ -33,5 +33,12 @@ message ProductList {
 
 message ResponseMessage {
     string message = 1;
+}
+
+message ProductFilterRequest {
+  string code = 1;
+  string name = 2;
+  string size = 3;
+  string color = 4;
 }
 

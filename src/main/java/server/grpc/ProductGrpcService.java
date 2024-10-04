@@ -187,7 +187,88 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	    }
 	}
 
+	@Override
+	public void deleteProduct(RequestId request, StreamObserver<ResponseMessage> responseObserver) {
+	    try {
+	        // Buscar el producto por el código
+	        Product product = services.findByCode(request.getCode());
 
+	        if (product == null) {
+	            // Si el producto no se encuentra, devolver un error de "no encontrado"
+	            responseObserver.onError(
+	                Status.NOT_FOUND
+	                .withDescription("Product with code " + request.getCode() + " not found.")
+	                .asRuntimeException());
+	            return;
+	        }
+
+	        // Eliminar el producto usando el servicio
+	        boolean isDeleted = services.deleteByCode(product.getCode());
+
+	        // Preparar el mensaje de respuesta
+	        ResponseMessage response;
+	        if (isDeleted) {
+	            response = ResponseMessage.newBuilder()
+	                .setMessage("Product with code " + request.getCode() + " deleted successfully.")
+	                .build();
+	        } else {
+	            response = ResponseMessage.newBuilder()
+	                .setMessage("Failed to delete product with code " + request.getCode() + ".")
+	                .build();
+	        }
+
+	        // Enviar la respuesta al cliente
+	        responseObserver.onNext(response);
+	        responseObserver.onCompleted();
+	    } catch (Exception e) {
+	        // Manejar errores inesperados
+	        responseObserver.onError(
+	            Status.INTERNAL.withDescription("Internal server error: " + e.getMessage())
+	            .asRuntimeException());
+	    }
+	}
+	
+	@Override
+	public void updateProduct(ProductGrpc request, StreamObserver<ResponseMessage> responseObserver) {
+	    try {
+	        // Crear una entidad Product a partir de los datos recibidos
+	        Product existingProduct = new Product();
+	        existingProduct.setCode(request.getCode());
+	        existingProduct.setName(request.getName());
+	        existingProduct.setSize(request.getSize());
+	        existingProduct.setPhoto(request.getPhoto().toByteArray()); // Convertir ByteString a byte[]
+	        existingProduct.setColor(request.getColor());
+	        existingProduct.setActive(request.getActive());
+
+	        // Usar el servicio para actualizar el producto
+	        boolean isUpdated = services.updateProduct(existingProduct);
+
+	        // Preparar la respuesta para el cliente
+	        ResponseMessage response;
+	        if (isUpdated) {
+	            response = ResponseMessage.newBuilder()
+	                .setMessage("Product updated successfully with code: " + existingProduct.getCode())
+	                .build();
+	        } else {
+	            response = ResponseMessage.newBuilder()
+	                .setMessage("Failed to update the product. Product not found with code: " + existingProduct.getCode())
+	                .build();
+	        }
+
+	        // Enviar la respuesta al cliente
+	        responseObserver.onNext(response);
+	        responseObserver.onCompleted();
+
+	    } catch (Exception e) {
+	        // Manejar errores inesperados
+	        responseObserver.onError(
+	            Status.INTERNAL.withDescription("Internal server error: " + e.getMessage())
+	            .asRuntimeException()
+	        );
+	    }
+	}
+		
+		
 	}
 
 

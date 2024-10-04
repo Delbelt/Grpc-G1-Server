@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import server.entities.Product;
 import server.entities.Stock;
 import server.entities.Store;
+import server.entities.User;
 import server.repositories.IProductRepository;
 import server.repositories.IStockRepository;
 import server.repositories.IStoreRepository;
@@ -37,6 +38,7 @@ public class StoreService implements IStoreService{
 	@Autowired
 	private StockService stockService;
 	
+	private UserService userService;
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -91,36 +93,37 @@ public class StoreService implements IStoreService{
         return repository.save(store);
     }
 
-
+    
     @Override
     @Transactional
     public Store updateStore(Store store) {
-        // Ensure the store exists before updating, or handle accordingly
         var existingStore = repository.findByCode(store.getCode());
-        if (existingStore != null) {
-            var response = repository.save(store);
-            log.info("[StoreService][updateStore]: Updated store: " + response);
-            return response;
-        } else {
-            // Handle store not found case if needed
+        if (existingStore == null) {
             log.warn("[StoreService][updateStore]: Store with code {} not found", store.getCode());
-            return null;
+            throw new NoSuchElementException("Store with code " + store.getCode() + " not found");
         }
+        
+        var response = repository.save(store);
+        log.info("[StoreService][updateStore]: Updated store: " + response);
+        return response;
     }
-
    
     @Override
-	@Transactional
+    @Transactional
     public boolean deleteStore(String code) {
-    	boolean isDelete = false;
+        boolean isDeleted = false;
         try {
-            repository.deleteById(code);
-     
-            isDelete = true;
+            if (repository.existsById(code)) { // Verifica si la tienda existe
+                repository.deleteById(code);
+                isDeleted = true;
+                log.info("[StoreService][deleteStore]: Successfully deleted store with ID " + code);
+            } else {
+                log.warn("[StoreService][deleteStore]: Store with ID {} not found", code);
+            }
         } catch (Exception e) {
-            
+            log.error("[StoreService][deleteStore]: Error occurred while trying to delete store with ID " + code, e);
         }
-        return isDelete;
+        return isDeleted;
     }
     
     @Override
@@ -148,6 +151,70 @@ public class StoreService implements IStoreService{
         Stock newStock = stockService.createStock(storeCode, productCode, 0); 
 
         log.info("Successfully assigned product {} to store {} with stock code {}", productCode, storeCode, newStock.getCode());
+    }
+    
+    
+    @Override
+    @Transactional
+    public void assignUserToStore(String storeCode, int userId) {
+        
+        Store store = repository.findByCode(storeCode);
+        if (store == null) {
+            throw new NoSuchElementException("Store not found with code: " + storeCode);
+        }
+       
+        User user = userService.findById(userId); 
+        if (user == null) {
+            throw new NoSuchElementException("User not found with id: " + userId);
+        }
+
+        
+        store.getUsers().add(user); 
+        repository.save(store); 
+        log.info("Successfully assigned user {} to store {}", userId, storeCode);
+    }
+    
+   
+
+    
+    @Override
+    @Transactional
+    public void removeProductFromStore(String storeCode, String productCode) {
+        Store store = repository.findByCode(storeCode);
+        if (store == null) {
+            throw new NoSuchElementException("Store with code " + storeCode + " not found");
+        }
+
+        Stock stock = stockRepository.findByStoreAndProduct(storeCode, productCode);
+        if (stock == null) {
+            throw new NoSuchElementException("Stock with product " + productCode + " not found in store " + storeCode);
+        }
+
+        store.getStocks().remove(stock);
+        repository.save(store);
+
+        log.info("Successfully removed product {} from store {}", productCode, storeCode);
+    }
+
+    @Override
+    @Transactional
+    public void removeUserFromStore(String storeCode, int userId) {
+        
+        Store store = repository.findByCode(storeCode);
+        if (store == null) {
+            throw new NoSuchElementException("Store not found with code: " + storeCode);
+        }
+
+       
+        User user = userService.findById(userId);
+        if (user == null) {
+            throw new NoSuchElementException("User not found with id: " + userId);
+        }
+
+        
+        store.getUsers().remove(user); 
+        repository.save(store); 
+        log.info("Successfully removed user {} from store {}", userId, storeCode);
     }
 
 }

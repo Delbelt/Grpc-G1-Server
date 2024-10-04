@@ -40,7 +40,7 @@ public class ProductService implements IProductService{
 	@Transactional(readOnly = true)
 	public List<Product> findAll() {
 
-		return repository.findAll();
+		return repository.findAll(); // retorna la lista de productos
 	}
 	
 	@Override
@@ -71,4 +71,36 @@ public class ProductService implements IProductService{
 	}
 
 	
+	
+	    @Override
+	    @Transactional(readOnly = true)
+	    public List<Product> findProductsByFilter(String code, String name, String size, String color) {
+	        List<Product> filteredProducts = repository.findProductsByFilter(
+	            code.isEmpty() ? null : code,
+	            name.isEmpty() ? null : name,
+	            size.isEmpty() ? null : size,
+	            color.isEmpty() ? null : color
+	        );
+	        log.info("[ProductService][findProductsByFilter]: " + filteredProducts);
+	        return filteredProducts;
+	    }
+	    
+	    @Override
+	    @Transactional
+	    public boolean updateProduct(Product product) {
+	        try {
+	            // Verificar si el producto existe antes de intentar actualizarlo
+	            if (repository.existsById(product.getCode())) {
+	                repository.save(product); // Guarda el producto modificado
+	                return true; 
+	            } else {
+	                return false; // Si no existe, retorna false
+	            }
+	        } catch (Exception e) {
+	        
+	            log.error("Error updating product: " + e.getMessage());
+	            return false;
+	        }
+	    }
+
 }

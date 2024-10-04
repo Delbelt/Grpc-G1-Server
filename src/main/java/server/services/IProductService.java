@@ -3,7 +3,6 @@ package server.services;
 import java.util.List;
 
 import server.entities.Product;
-import server.entities.User;
 
 public interface IProductService {
 
@@ -16,5 +15,10 @@ public interface IProductService {
 	public boolean insertOrUpdate(Product product);
 
 	public boolean deleteByCode(String code);
+	
+	public List<Product> findProductsByFilter(String code, String name, String size, String color);
+	
+	public boolean updateProduct(Product product);
+
 
 }

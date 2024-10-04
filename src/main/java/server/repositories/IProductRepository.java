@@ -24,11 +24,12 @@ public interface IProductRepository extends JpaRepository<Product, String> {
 	        @Param("size") String size, 
 	        @Param("color") String color
 	    );
+	//public boolean deleteByCode(String code);
 	}
 	//public List<Product> findProductsByFilter(String code, String name, String size, String color);
 
 	//public boolean insertOrUpdate(Product product);
-	//public boolean deleteByCode(String code); 
+	 
 
 
 

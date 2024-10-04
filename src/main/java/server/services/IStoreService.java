@@ -31,7 +31,14 @@ public interface IStoreService {
     // Método para asignar un producto a una tienda
     void assignProductToStore(String storeCode, String productCode);
     
-
+    // Método para asignar un usuario a una tienda
+    void assignUserToStore(String storeCode, int userId);
+     
+    // Método para desasignar un producto en una tienda
+    void removeProductFromStore(String storeCode, String productCode);
+     
+    // Método para desasignar un usuario en una tienda
+    void removeUserFromStore(String storeCode,int userId);
 	
 
 	

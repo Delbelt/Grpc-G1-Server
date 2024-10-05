@@ -43,6 +43,19 @@ message CreateStockRequest {
     int32 quantity = 3;
 }
 
+// Mensaje para solicitar agregar stock
+message AddStockRequest {
+    string stockCode = 1; // Código del stock a agregar
+    int32 quantity = 2;    // Cantidad a agregar
+}
+
+
+// Mensaje para solicitar restar stock
+message SubtractStockRequest {
+    string stockCode = 1; // Código del stock a restar
+    int32 quantity = 2;    // Cantidad a restar
+}
+
 // Definición del servicio gRPC
 service StockGrpcService {
     rpc getStockById(GetStockByIdRequest) returns (StockGrpc);
@@ -52,4 +65,6 @@ service StockGrpcService {
     rpc getStockByProduct(GetStockByProductRequest) returns (StockList);
     rpc getStockByStore(GetStockByStoreRequest) returns (StockList);
     rpc createStock(CreateStockRequest) returns (StockGrpc);
+    rpc addStock(AddStockRequest) returns (StockGrpc);
+    rpc subtractStock(SubtractStockRequest) returns (StockGrpc);
 }

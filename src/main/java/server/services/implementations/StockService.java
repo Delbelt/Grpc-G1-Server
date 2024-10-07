@@ -146,10 +146,71 @@ public class StockService implements IStockService{
 	    return repository.findByProduct_CodeAndStore_Code(productCode, storeCode).isPresent();
 	}
 	
-	
 	public Stock findByStoreAndProduct(String codeStore, String codeProduct) {
 		var response = repository.findByStoreAndProduct(codeStore, codeProduct);
 		
 		return response;
 	}
+	
+	@Override
+	@Transactional
+	public Stock addStock(String code, int quantityToAdd) {
+	    try {
+	        // Find the stock by code
+	        Stock stock = repository.findByCode(code);
+	        if (stock == null) {
+	            throw new NoSuchElementException("Stock with code " + code + " not found");
+	        }
+
+	        // Add the quantity
+	        stock.setQuantity(stock.getQuantity() + quantityToAdd);
+	        Stock updatedStock = repository.save(stock); // Guardar el stock actualizado
+
+	        log.info("[StockService][addStock]: Successfully added {} units to stock with code {}", quantityToAdd, code);
+	        
+	        return updatedStock; // Devolver el stock actualizado
+	    } catch (NoSuchElementException e) {
+	        log.error("[StockService][addStock]: Error - " + e.getMessage(), e);
+	        throw e; // rethrow to handle it in the gRPC service or controller
+	    } catch (Exception e) {
+	        log.error("[StockService][addStock]: Unexpected error while adding stock with code " + code, e);
+	        throw new RuntimeException("Error while adding stock: " + e.getMessage(), e);
+	    }
+	}
+
+
+	@Override
+	@Transactional
+	public Stock subtractStock(String code, int quantityToSubtract) {
+	    try {
+	        // Find the stock by code
+	        Stock stock = repository.findByCode(code);
+	        if (stock == null) {
+	            throw new NoSuchElementException("Stock with code " + code + " not found");
+	        }
+
+	        // Check if there is enough quantity to subtract
+	        if (stock.getQuantity() < quantityToSubtract) {
+	            throw new IllegalArgumentException("Insufficient stock. Available quantity: " + stock.getQuantity());
+	        }
+
+	        // Subtract the quantity
+	        stock.setQuantity(stock.getQuantity() - quantityToSubtract);
+	        Stock updatedStock = repository.save(stock); // Guardar el stock actualizado
+
+	        log.info("[StockService][subtractStock]: Successfully subtracted {} units from stock with code {}", quantityToSubtract, code);
+	        
+	        return updatedStock; // Devolver el stock actualizado
+	    } catch (NoSuchElementException e) {
+	        log.error("[StockService][subtractStock]: Error - " + e.getMessage(), e);
+	        throw e; // rethrow to handle it in the gRPC service or controller
+	    } catch (IllegalArgumentException e) {
+	        log.error("[StockService][subtractStock]: Error - " + e.getMessage(), e);
+	        throw e; // rethrow to handle it in the gRPC service or controller
+	    } catch (Exception e) {
+	        log.error("[StockService][subtractStock]: Unexpected error while subtracting stock with code " + code, e);
+	        throw new RuntimeException("Error while subtracting stock: " + e.getMessage(), e);
+	    }
+	}
+
 }

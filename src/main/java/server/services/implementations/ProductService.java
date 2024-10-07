@@ -103,4 +103,22 @@ public class ProductService implements IProductService{
 	        }
 	    }
 
+		@Override
+		public boolean modifyProduct(String code) {
+			 try {
+		            // Verificar si el producto existe antes de intentar actualizarlo
+		            if (repository.findByCode(code) != null) {
+		            	var product = repository.findByCode(code);
+		                repository.save(product); // Guarda el producto modificado
+		                return true; 
+		            } else {
+		                return false; // Si no existe, retorna false
+		            }
+		        } catch (Exception e) {
+		        
+		            log.error("Error updating product: " + e.getMessage());
+		            return false;
+		        }
+		}
+
 }

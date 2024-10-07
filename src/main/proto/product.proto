@@ -12,6 +12,7 @@ service ProductGrpcService {
  rpc GetProductsByFilter (ProductFilterRequest) returns (ProductList);
  rpc DeleteProduct(RequestId) returns (ResponseMessage);
  rpc UpdateProduct(ProductGrpc) returns (ResponseMessage);
+ rpc ModifyProductActive(RequestId) returns (ResponseMessage);
 }
 
 message RequestId {

@@ -19,6 +19,7 @@ public interface IProductService {
 	public List<Product> findProductsByFilter(String code, String name, String size, String color);
 	
 	public boolean updateProduct(Product product);
-
+	
+	public boolean modifyProduct(String code);
 
 }

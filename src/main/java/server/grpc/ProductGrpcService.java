@@ -38,7 +38,6 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 			if (response == null) {
 				
 				String messageError = "User with code " + request.getCode() + " not found";
-				
 				throw new NoSuchElementException(messageError);
 			}
 
@@ -57,7 +56,6 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 			responseObserver.onCompleted();
 
 		}
-
 		catch (NoSuchElementException e) {			
 			
 			responseObserver
@@ -95,7 +93,6 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
                 productListBuilder.addProducts(productGrpc);
             }
 
-            // Envía la lista de productos al cliente
             responseObserver.onNext(productListBuilder.build());
             responseObserver.onCompleted();
         } catch (Exception e) {
@@ -109,7 +106,7 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	@Override
 	public void createProduct(ProductGrpc request, StreamObserver<ResponseMessage> responseObserver) {
 	    try {
-	        // Crear una nueva entidad Product a partir de los datos recibidos
+
 	        Product newProduct = new Product();
 	        newProduct.setCode(request.getCode());
 	        newProduct.setName(request.getName());
@@ -118,10 +115,9 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	        newProduct.setColor(request.getColor());
 	        newProduct.setActive(request.getActive());
 
-	        // Usar el servicio para insertar o actualizar el producto
+	        
 	        boolean isSaved = services.insertOrUpdate(newProduct);
 
-	        // Preparar la respuesta para el cliente
 	        ResponseMessage response;
 	        if (isSaved) {
 	            response = ResponseMessage.newBuilder()
@@ -133,12 +129,12 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	                .build();
 	        }
 
-	        // Enviar la respuesta al cliente
+	      
 	        responseObserver.onNext(response);
 	        responseObserver.onCompleted();
 
 	    } catch (Exception e) {
-	        // Manejar errores inesperados
+	        
 	        responseObserver.onError(
 	            Status.INTERNAL.withDescription("Internal server error: " + e.getMessage())
 	            .asRuntimeException()
@@ -149,7 +145,7 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	@Override
 	public void getProductsByFilter(ProductFilterRequest request, StreamObserver<ProductList> responseObserver) {
 	    try {
-	        // Obtener todos los productos desde el servicio
+	   
 	        List<Product> allProducts = services.findAll();
 
 	        // Aplicar filtros a los productos en memoria
@@ -174,7 +170,6 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	            productListBuilder.addProducts(productGrpc);
 	        }
 
-	        // Enviar la lista de productos filtrados al cliente
 	        responseObserver.onNext(productListBuilder.build());
 	        responseObserver.onCompleted();
 
@@ -190,11 +185,11 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	@Override
 	public void deleteProduct(RequestId request, StreamObserver<ResponseMessage> responseObserver) {
 	    try {
-	        // Buscar el producto por el código
+
 	        Product product = services.findByCode(request.getCode());
 
 	        if (product == null) {
-	            // Si el producto no se encuentra, devolver un error de "no encontrado"
+
 	            responseObserver.onError(
 	                Status.NOT_FOUND
 	                .withDescription("Product with code " + request.getCode() + " not found.")
@@ -202,10 +197,8 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	            return;
 	        }
 
-	        // Eliminar el producto usando el servicio
 	        boolean isDeleted = services.deleteByCode(product.getCode());
 
-	        // Preparar el mensaje de respuesta
 	        ResponseMessage response;
 	        if (isDeleted) {
 	            response = ResponseMessage.newBuilder()
@@ -217,11 +210,11 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	                .build();
 	        }
 
-	        // Enviar la respuesta al cliente
+
 	        responseObserver.onNext(response);
 	        responseObserver.onCompleted();
 	    } catch (Exception e) {
-	        // Manejar errores inesperados
+
 	        responseObserver.onError(
 	            Status.INTERNAL.withDescription("Internal server error: " + e.getMessage())
 	            .asRuntimeException());
@@ -231,7 +224,7 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	@Override
 	public void updateProduct(ProductGrpc request, StreamObserver<ResponseMessage> responseObserver) {
 	    try {
-	        // Crear una entidad Product a partir de los datos recibidos
+
 	        Product existingProduct = new Product();
 	        existingProduct.setCode(request.getCode());
 	        existingProduct.setName(request.getName());
@@ -240,10 +233,9 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	        existingProduct.setColor(request.getColor());
 	        existingProduct.setActive(request.getActive());
 
-	        // Usar el servicio para actualizar el producto
+	
 	        boolean isUpdated = services.updateProduct(existingProduct);
 
-	        // Preparar la respuesta para el cliente
 	        ResponseMessage response;
 	        if (isUpdated) {
 	            response = ResponseMessage.newBuilder()
@@ -255,19 +247,57 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	                .build();
 	        }
 
-	        // Enviar la respuesta al cliente
 	        responseObserver.onNext(response);
 	        responseObserver.onCompleted();
 
 	    } catch (Exception e) {
-	        // Manejar errores inesperados
 	        responseObserver.onError(
 	            Status.INTERNAL.withDescription("Internal server error: " + e.getMessage())
 	            .asRuntimeException()
 	        );
 	    }
 	}
-		
+	
+	@Override
+	public void modifyProductActive(RequestId request, StreamObserver<ResponseMessage> responseObserver) {
+	    try {
+	        
+	        Product existingProduct = services.findByCode(request.getCode());
+
+	        if (existingProduct == null) {
+	            responseObserver.onError(
+	                Status.NOT_FOUND.withDescription("Product not found with code: " + request.getCode())
+	                .asRuntimeException());
+	            return;
+	        }
+	      
+	        existingProduct.setActive(!existingProduct.isActive()); 
+
+	        boolean isUpdated = services.updateProduct(existingProduct);
+
+	        ResponseMessage response;
+	        if (isUpdated) {
+	            response = ResponseMessage.newBuilder()
+	                .setMessage("Product modified successfully with code: " + existingProduct.getCode())
+	                .build();
+	        } else {
+	            response = ResponseMessage.newBuilder()
+	                .setMessage("Failed to modify the product. Product not found with code: " + existingProduct.getCode())
+	                .build();
+	        }
+
+	        responseObserver.onNext(response);
+	        responseObserver.onCompleted();
+
+	    } catch (Exception e) {
+
+	        responseObserver.onError(
+	            Status.INTERNAL.withDescription("Internal server error: " + e.getMessage())
+	            .asRuntimeException());
+	    }
+	}
+
+
 		
 	}
 

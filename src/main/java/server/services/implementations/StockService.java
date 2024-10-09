@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
-import server.entities.Product;
 import server.entities.Stock;
 import server.repositories.IProductRepository;
 import server.repositories.IStockRepository;
@@ -18,11 +17,11 @@ import server.services.IStockService;
 
 @Slf4j
 @Service
-public class StockService implements IStockService{
-	
+public class StockService implements IStockService {
 	
 	@Autowired
 	private IStockRepository repository;
+	
 	@Autowired
     private IStoreRepository storeRepository; // Repositorio para obtener la tienda
 
@@ -32,7 +31,8 @@ public class StockService implements IStockService{
 	@Override
 	@Transactional(readOnly = true)
     public Stock findByCode(String code) {
-		var response = repository.findByCode(code);
+		
+		var response = repository.findById(code).orElse(null);
 		
 		log.info("[StockService][findByCode]: " + response);
 
@@ -50,12 +50,6 @@ public class StockService implements IStockService{
         
         return response;
     }
-	
-	public Stock findByStoreAndProduct(String codeStore, String codeProduct) {
-		var response = repository.findByStoreAndProduct(codeStore, codeProduct);
-		
-		return response;
-	}
 
 	@Override
 	@Transactional(readOnly = true)

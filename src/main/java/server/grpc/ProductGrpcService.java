@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.protobuf.ByteString;
-
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -16,6 +14,7 @@ import server.ProductProto.Empty;
 import server.ProductProto.ProductFilterRequest;
 import server.ProductProto.ProductGrpc;
 import server.ProductProto.ProductList;
+import server.ProductProto.RequestActive;
 import server.ProductProto.RequestId;
 import server.ProductProto.ResponseMessage;
 import server.entities.Product;
@@ -47,7 +46,7 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 					.setCode(response.getCode())
 					.setName(response.getName())
 					.setSize(response.getSize())
-			        .setPhoto(ByteString.copyFrom(response.getPhoto()))  // Usa 'response' en lugar de 'product'
+			        .setPhoto(response.getPhoto())  // Usa 'response' en lugar de 'product'
 					.setColor(response.getColor())
 					.setActive(response.isActive())
 					.build();
@@ -86,7 +85,7 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
                     .setCode(product.getCode())
                     .setName(product.getName())
                     .setSize(product.getSize())
-                    .setPhoto(ByteString.copyFrom(product.getPhoto()))
+                    .setPhoto(product.getPhoto())
                     .setColor(product.getColor())
                     .setActive(product.isActive())
                     .build();
@@ -95,7 +94,45 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 
             responseObserver.onNext(productListBuilder.build());
             responseObserver.onCompleted();
+            
         } catch (Exception e) {
+        	
+            responseObserver.onError(
+                Status.INTERNAL.withDescription("Internal server error: " + e.getMessage())
+                .asRuntimeException()
+            );
+        }
+    }
+	
+	@Override
+    public void getAllProductsActive(RequestActive request, StreamObserver<ProductList> responseObserver) {
+		
+        try {
+        	
+            var products = services.findAllByActive(request.getActive());
+
+            ProductList.Builder productListBuilder = ProductList.newBuilder();
+            
+            for (Product product : products) {
+            	
+                ProductGrpc productGrpc = 
+                	ProductGrpc.newBuilder()
+                    .setCode(product.getCode())
+                    .setName(product.getName())
+                    .setSize(product.getSize())
+                    .setPhoto(product.getPhoto())
+                    .setColor(product.getColor())
+                    .setActive(product.isActive())
+                    .build();
+                
+                productListBuilder.addProducts(productGrpc);
+            }
+
+            responseObserver.onNext(productListBuilder.build());
+            responseObserver.onCompleted();
+            
+        } catch (Exception e) {
+        	
             responseObserver.onError(
                 Status.INTERNAL.withDescription("Internal server error: " + e.getMessage())
                 .asRuntimeException()
@@ -111,7 +148,7 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	        newProduct.setCode(request.getCode());
 	        newProduct.setName(request.getName());
 	        newProduct.setSize(request.getSize());
-	        newProduct.setPhoto(request.getPhoto().toByteArray()); // Convertimos ByteString a byte[]
+	        newProduct.setPhoto(request.getPhoto());
 	        newProduct.setColor(request.getColor());
 	        newProduct.setActive(request.getActive());
 
@@ -165,7 +202,7 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	                .setSize(product.getSize() != null ? product.getSize() : "")
 	                .setColor(product.getColor() != null ? product.getColor() : "")
 	                .setActive(product.isActive())
-	                .setPhoto(ByteString.copyFrom(product.getPhoto() != null ? product.getPhoto() : new byte[0]))
+	                .setPhoto(product.getPhoto())
 	                .build();
 	            productListBuilder.addProducts(productGrpc);
 	        }
@@ -229,7 +266,7 @@ public class ProductGrpcService extends ProductGrpcServiceImplBase{
 	        existingProduct.setCode(request.getCode());
 	        existingProduct.setName(request.getName());
 	        existingProduct.setSize(request.getSize());
-	        existingProduct.setPhoto(request.getPhoto().toByteArray()); // Convertir ByteString a byte[]
+	        existingProduct.setPhoto(request.getPhoto());
 	        existingProduct.setColor(request.getColor());
 	        existingProduct.setActive(request.getActive());
 

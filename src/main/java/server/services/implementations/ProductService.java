@@ -44,6 +44,13 @@ public class ProductService implements IProductService{
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
+	public List<Product> findAllByActive(boolean active) {
+		
+		return repository.findAllByActive(active);
+	}
+	
+	@Override
 	@Transactional
 	public boolean insertOrUpdate(Product product) {
 

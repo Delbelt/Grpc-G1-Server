@@ -11,6 +11,8 @@ public interface IProductService {
 	public Product findByName(String name);
 
 	public List<Product> findAll();
+	
+	public List<Product> findAllByActive(boolean active);
 
 	public boolean insertOrUpdate(Product product);
 

@@ -9,9 +9,14 @@ import org.springframework.data.repository.query.Param;
 import server.entities.Product;
 
 public interface IProductRepository extends JpaRepository<Product, String> {
+	
 	public Product findByCode(String code);
+	
 	public Product findByName(String name);
-	public List<Product> findAll(); 
+	
+	public List<Product> findAll();
+	
+	public List<Product> findAllByActive(boolean active);
 	
 	@Query("SELECT p FROM Product p WHERE "
 	         + "(:code IS NULL OR p.code = :code) AND "
@@ -24,8 +29,9 @@ public interface IProductRepository extends JpaRepository<Product, String> {
 	        @Param("size") String size, 
 	        @Param("color") String color
 	    );
-	//public boolean deleteByCode(String code);
 	}
+
+	//public boolean deleteByCode(String code);
 	//public List<Product> findProductsByFilter(String code, String name, String size, String color);
 
 	//public boolean insertOrUpdate(Product product);

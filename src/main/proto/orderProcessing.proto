@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option java_package = "server"; 
+option java_outer_classname = "OrderProcessingProto";
+
+package OrderProcessing;
+
+service OrderProcessingGrpcService {
+    rpc RunProcess(EmptyProcessing) returns (ProcessingResponse);
+}
+
+message EmptyProcessing {}
+
+message ProcessingResponse {
+    string status = 1;
+}

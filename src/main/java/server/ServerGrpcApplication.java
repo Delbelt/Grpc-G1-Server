@@ -10,6 +10,9 @@ public class ServerGrpcApplication {
 	public static void main(String[] args) {
 		
 		SpringApplication.run(ServerGrpcApplication.class, args);	
+		
+		// PARA REALIZAR PRUEBAS:
+		
 //		ApplicationContext context = SpringApplication.run(ServerGrpcApplication.class, args);	
 		
 //		String state = "SOLICITADA";

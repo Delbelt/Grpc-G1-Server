@@ -14,6 +14,7 @@ import server.entities.Stock;
 import server.security.Roles;
 import server.security.GrpcSecurityConfig.RoleAuth;
 import server.services.IStockService;
+import stock.Stock.AddStockRequest;
 import stock.Stock.CreateStockRequest;
 import stock.Stock.Empty;
 import stock.Stock.GetStockByIdRequest;
@@ -21,6 +22,7 @@ import stock.Stock.GetStockByProductRequest;
 import stock.Stock.GetStockByStoreRequest;
 import stock.Stock.StockGrpc;
 import stock.Stock.StockList;
+import stock.Stock.SubtractStockRequest;
 import stock.StockGrpcServiceGrpc.StockGrpcServiceImplBase;
 
 @GrpcService
@@ -294,6 +296,77 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 	        responseObserver.onCompleted();
 	    } catch (NoSuchElementException e) {
 	        responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
+	    } catch (Exception e) {
+	        String errorMessage = "Internal server error: " + e.getMessage();
+	        responseObserver.onError(Status.INTERNAL.withDescription(errorMessage).asRuntimeException());
+	    }
+	}
+
+	@Override
+	@RoleAuth({ Roles.ADMIN })
+	public void addStock(AddStockRequest request, StreamObserver<StockGrpc> responseObserver) {
+	    try {
+	        // Agrega stock y obtiene el stock actualizado
+	        Stock updatedStock = stockService.addStock(request.getStockCode(), request.getQuantity());
+
+	        // Construir el producto gRPC
+	        ProductGrpc productGrpc = ProductGrpc.newBuilder()
+	                .setCode(updatedStock.getProduct().getCode())
+	                .setName(updatedStock.getProduct().getName())
+	                .setSize(updatedStock.getProduct().getSize())
+	                .setPhoto(updatedStock.getProduct().getPhoto())
+	                .setColor(updatedStock.getProduct().getColor()).build();
+
+	        // Construir la respuesta gRPC
+	        StockGrpc stockGrpc = StockGrpc.newBuilder()
+	                .setCode(updatedStock.getCode())
+	                .setStoreCode(updatedStock.getStore().getCode())
+	                .setProduct(productGrpc)
+	                .setQuantity(updatedStock.getQuantity()).build();
+
+	        // Enviar la respuesta
+	        responseObserver.onNext(stockGrpc);
+	        responseObserver.onCompleted();
+	    } catch (NoSuchElementException e) {
+	        responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
+	    } catch (IllegalArgumentException e) {
+	        responseObserver.onError(Status.INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
+	    } catch (Exception e) {
+	        String errorMessage = "Internal server error: " + e.getMessage();
+	        responseObserver.onError(Status.INTERNAL.withDescription(errorMessage).asRuntimeException());
+	    }
+	}
+
+
+	@Override
+	@RoleAuth({ Roles.ADMIN })
+	public void subtractStock(SubtractStockRequest request, StreamObserver<StockGrpc> responseObserver) {
+	    try {
+	        // Resta el stock y obtiene el stock actualizado
+	        Stock updatedStock = stockService.subtractStock(request.getStockCode(), request.getQuantity());
+
+	        // Construir el producto gRPC
+	        ProductGrpc productGrpc = ProductGrpc.newBuilder()
+	                .setCode(updatedStock.getProduct().getCode())
+	                .setName(updatedStock.getProduct().getName())
+	                .setSize(updatedStock.getProduct().getSize())
+	                .setPhoto(updatedStock.getProduct().getPhoto())
+	                .setColor(updatedStock.getProduct().getColor()).build();
+
+	        // Construir la respuesta gRPC
+	        StockGrpc stockGrpc = StockGrpc.newBuilder()
+	                .setCode(updatedStock.getCode())
+	                .setStoreCode(updatedStock.getStore().getCode())
+	                .setProduct(productGrpc)
+	                .setQuantity(updatedStock.getQuantity()).build();
+
+	        // Enviar la respuesta
+	        responseObserver.onNext(stockGrpc);
+	        responseObserver.onCompleted();
+	    } catch (NoSuchElementException e) {
+	        responseObserver.onError(Status.NOT_FOUND.withDescription(e.getMessage()).asRuntimeException());
+	    } catch (IllegalArgumentException e) {
+	        responseObserver.onError(Status.INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException());
 	    } catch (Exception e) {
 	        String errorMessage = "Internal server error: " + e.getMessage();
 	        responseObserver.onError(Status.INTERNAL.withDescription(errorMessage).asRuntimeException());

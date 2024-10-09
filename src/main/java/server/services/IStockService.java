@@ -27,8 +27,8 @@ public interface IStockService {
 	public boolean stockExists(String productCode, String storeCode);
 	
 	public Stock findByStoreAndProduct(String codeStore, String codeProduct);
-	
+
 	public Stock addStock(String code, int quantityToAdd);
-	
+
 	public Stock subtractStock(String code, int quantityToSubtract);
 }

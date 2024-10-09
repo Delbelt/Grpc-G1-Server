@@ -50,6 +50,12 @@ public class StockService implements IStockService{
         
         return response;
     }
+	
+	public Stock findByStoreAndProduct(String codeStore, String codeProduct) {
+		var response = repository.findByStoreAndProduct(codeStore, codeProduct);
+		
+		return response;
+	}
 
 	@Override
 	@Transactional(readOnly = true)

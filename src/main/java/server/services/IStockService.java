@@ -2,7 +2,6 @@ package server.services;
 
 import java.util.List;
 
-import server.entities.Product;
 import server.entities.Stock;
 
 public interface IStockService {
@@ -20,7 +19,7 @@ public interface IStockService {
 	public List<Stock> findAvailableStocks(); // Obtiene lista de todos stocks disponibles
 
 	public List<Stock> findUnavailableStocks(); // Obtiene lista de todos stocks no disponibles
-	
+
 	public List<Stock> getStockByProduct(String productCode); // Obtiene lista de todos los stock que contienen el producto
 
 	public Stock createStock(String storeCode, String productCode, int quantity);
@@ -32,5 +31,4 @@ public interface IStockService {
 	public Stock addStock(String code, int quantityToAdd);
 	
 	public Stock subtractStock(String code, int quantityToSubtract);
-
 }

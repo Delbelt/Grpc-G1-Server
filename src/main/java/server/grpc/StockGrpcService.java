@@ -34,12 +34,13 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 	public void getStockById(GetStockByIdRequest request, StreamObserver<StockGrpc> responseObserver) {
 		try {
 			// Obtener stock desde el servicio de stock
-			var stock = stockService.findByCode(request.getCode());
+			
+			var stock = stockService.findByCode(request.getCode());			
 
 			if (stock == null) {
 				String messageError = "Stock with code " + request.getCode() + " not found";
 				throw new NoSuchElementException(messageError);
-			}
+			}		
 
 			// Construir la respuesta de ProductGrpc
 			ProductGrpc productGrpc = ProductGrpc.newBuilder()
@@ -74,6 +75,7 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 		try {
 			// Obtener todos los stocks desde el servicio de stock
 			List<Stock> stocks = stockService.getAll();
+
 
 			if (stocks.isEmpty()) {
 				String messageError = "No stocks found";
@@ -124,7 +126,7 @@ public class StockGrpcService extends StockGrpcServiceImplBase {
 				ProductGrpc productGrpc = ProductGrpc.newBuilder()
 						.setCode(stock.getProduct().getCode())
 						.setName(stock.getProduct().getName())
-						.setSize(stock.getProduct().getSize())
+						.setSize(stock.getProduct().getSize())						
 						.setPhoto(stock.getProduct().getPhoto())
 						.setColor(stock.getProduct().getColor()).build();
 
